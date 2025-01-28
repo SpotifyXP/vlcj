@@ -1,2 +1,2 @@
 # vlcj
-Video playback supported with vlcj
+Video playback support with vlcj
