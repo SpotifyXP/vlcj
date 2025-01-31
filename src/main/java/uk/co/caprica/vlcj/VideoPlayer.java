@@ -9,6 +9,7 @@ import java.awt.*;
 public class VideoPlayer {
     private final EmbeddedMediaPlayerComponent mediaPlayer;
     private boolean repeating;
+    private Runnable currentTakeover;
 
     public VideoPlayer() {
         repeating = false;
@@ -57,5 +58,11 @@ public class VideoPlayer {
 
     public boolean isPlaying() {
         return mediaPlayer.getMediaPlayer().isPlaying();
+    }
+
+    public void init(Runnable onTakeover) {
+        stop();
+        if(currentTakeover != null) currentTakeover.run();
+        currentTakeover = onTakeover;
     }
 }
