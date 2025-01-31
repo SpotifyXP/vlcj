@@ -3,7 +3,6 @@ package uk.co.caprica.vlcj;
 import com.sun.jna.NativeLibrary;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 
@@ -16,6 +15,7 @@ public class SPXPInit {
             }catch (ClassNotFoundException ignored) {}
             Class<?> publicValues = Class.forName("com.spotifyxp.PublicValues");
             NativeLibrary.addSearchPath("libvlc", publicValues.getField("appLocation").get(null).toString() + File.separator + "vlc");
+            NativeLibrary.addSearchPath("libvlc", "C:\\Program Files\\VideoLAN\\VLC");
             Class<?> util = Class.forName("com.spotifyxp.PublicValues");
             Class<?> interfaceClass = Class.forName("com.spotifyxp.video.VLCPlayer");
             VideoPlayer player = new VideoPlayer();
