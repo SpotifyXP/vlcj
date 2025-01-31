@@ -1,31 +1,16 @@
 package uk.co.caprica.vlcj;
 
 import uk.co.caprica.vlcj.component.EmbeddedMediaPlayerComponent;
-import uk.co.caprica.vlcj.player.MediaPlayer;
 
 import java.awt.*;
 
 @SuppressWarnings("unused")
 public class VideoPlayer {
     private final EmbeddedMediaPlayerComponent mediaPlayer;
-    private boolean repeating;
     private Runnable currentTakeover;
 
     public VideoPlayer() {
-        repeating = false;
-        mediaPlayer = new EmbeddedMediaPlayerComponent() {
-            @Override
-            public void finished(MediaPlayer mediaPlayer)
-            {
-                super.finished(mediaPlayer);
-                if(!mediaPlayer.getRepeat()) return;
-                new Thread(() -> {
-                    System.gc();
-                    mediaPlayer.setTime(0);
-                    mediaPlayer.play();
-                }).start();
-            }
-        };
+        mediaPlayer = new EmbeddedMediaPlayerComponent();
     }
 
     public boolean isVideoPlaybackEnabled() {
@@ -49,11 +34,11 @@ public class VideoPlayer {
     }
 
     public void setLooping(boolean looping) {
-        repeating = looping;
+        mediaPlayer.getMediaPlayer().setRepeat(looping);
     }
 
     public boolean isLooping() {
-        return repeating;
+        return mediaPlayer.getMediaPlayer().getRepeat();
     }
 
     public boolean isPlaying() {
