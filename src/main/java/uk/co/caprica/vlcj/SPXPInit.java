@@ -14,8 +14,12 @@ public class SPXPInit {
                 logger = Class.forName("com.spotifyxp.logging.ConsoleLoggingModules");
             }catch (ClassNotFoundException ignored) {}
             Class<?> publicValues = Class.forName("com.spotifyxp.PublicValues");
-            NativeLibrary.addSearchPath("libvlc", publicValues.getField("appLocation").get(null).toString() + File.separator + "vlc");
+            Class<?> architectureDetection = Class.forName("com.spotifyxp.utils.ArchitectureDetection$Architecture");
+            if(publicValues.getField("architecture").get(null) == architectureDetection.getField("x86").get(null)) {
+                NativeLibrary.addSearchPath("libvlc", publicValues.getField("appLocation").get(null).toString() + File.separator + "vlc");
+            }
             NativeLibrary.addSearchPath("libvlc", "C:\\Program Files\\VideoLAN\\VLC");
+            NativeLibrary.addSearchPath("libvlc", "C:\\Program Files (x86)\\VideoLAN\\VLC");
             Class<?> util = Class.forName("com.spotifyxp.PublicValues");
             Class<?> interfaceClass = Class.forName("com.spotifyxp.video.VLCPlayer");
             VideoPlayer player = new VideoPlayer();
@@ -32,6 +36,7 @@ public class SPXPInit {
             );
             util.getField("vlcPlayer").set(null, proxyInstance);
         } catch (Exception ex) {
+            ex.printStackTrace();
             if(logger != null) {
                 try {
                     logger.getDeclaredMethod("Throwable", Throwable.class).invoke(logger, ex);
