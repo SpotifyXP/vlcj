@@ -1,14 +1,14 @@
 package uk.co.caprica.vlcj;
 
-import uk.co.caprica.vlcj.binding.internal.libvlc_media_t;
-import uk.co.caprica.vlcj.player.MediaPlayer;
-import uk.co.caprica.vlcj.player.MediaPlayerEventListener;
 import uk.co.caprica.vlcj.player.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 import uk.co.caprica.vlcj.player.embedded.FullScreenStrategy;
 import uk.co.caprica.vlcj.player.embedded.videosurface.CanvasVideoSurface;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 @SuppressWarnings("unused")
 public class VideoPlayer {
@@ -20,6 +20,7 @@ public class VideoPlayer {
     private final Panel component;
     private final Canvas canvas;
     private Runnable onPlay;
+    private final JLayeredPane container;
 
     public VideoPlayer() {
         mediaPlayerFactory = new MediaPlayerFactory(
@@ -32,9 +33,18 @@ public class VideoPlayer {
         canvas.setBackground(Color.BLACK);
         component = new Panel();
         component.setBackground(Color.BLACK);
-        component.setLayout(new BorderLayout());
-        component.add(canvas, BorderLayout.CENTER);
         canvasVideoSurface = mediaPlayerFactory.newVideoSurface(canvas);
+        container = new JLayeredPane();
+        container.setBackground(Color.BLACK);
+        container.add(canvas, JLayeredPane.DEFAULT_LAYER);
+        container.add(component, JLayeredPane.PALETTE_LAYER);
+        container.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                canvas.setSize(container.getSize());
+                component.setSize(container.getSize());
+            }
+        });
     }
 
     private void initializeVideoPlayback() {
@@ -44,19 +54,20 @@ public class VideoPlayer {
             @Override public boolean isFullScreenMode() { return false; }
         });
         mediaPlayer.setVideoSurface(canvasVideoSurface);
+        mediaPlayer.attachVideoSurface();
     }
 
     public boolean isVideoPlaybackEnabled() {
         return true;
     }
 
-    public Panel getComponent() {
-        return component;
+    public Container getComponent() {
+        return container;
     }
 
     public void play(String uriOrFile) {
-        canvas.setVisible(true);
-        mediaPlayer.playMedia(uriOrFile);
+        mediaPlayer.startMedia(uriOrFile);
+        component.setVisible(false);
     }
 
     public void pause() {
@@ -64,8 +75,8 @@ public class VideoPlayer {
     }
 
     public void stop() {
-        canvas.setVisible(false);
         mediaPlayer.stop();
+        component.setVisible(true);
     }
 
     public boolean wasReleased() {
@@ -102,5 +113,9 @@ public class VideoPlayer {
 
     public void resume() {
         mediaPlayer.play();
+    }
+
+    public void removeOnTakeOver() {
+        currentTakeover = null;
     }
 }
